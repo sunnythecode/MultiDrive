@@ -12,7 +12,6 @@
 #include <frc/smartdashboard/SendableChooser.h>
 
 class Robot : public frc::TimedRobot {
- public:
   void RobotInit() override;
   void RobotPeriodic() override;
   void AutonomousInit() override;
@@ -39,13 +38,9 @@ class Robot : public frc::TimedRobot {
   rev::CANSparkMax* m_rightLeadMotor = new rev::CANSparkMax(rightLeadDeviceID, rev::CANSparkMax::MotorType::kBrushless);
   rev::CANSparkMax* m_leftFollowMotor = new rev::CANSparkMax(leftFollowDeviceID, rev::CANSparkMax::MotorType::kBrushless);
   rev::CANSparkMax* m_rightFollowMotor = new rev::CANSparkMax(rightFollowDeviceID, rev::CANSparkMax::MotorType::kBrushless);
-
+  int Drive_Mode = 0; // 0 Arcade, 1 Tank, 2 Forza, 3 Swerve(eventually)
   //Functions
   double DzShift(double input, double dz);
-
-
-
-
 
  private:
   frc::SendableChooser<std::string> m_chooser;
@@ -60,12 +55,12 @@ double Robot::DzShift(double input, double dz) {
         return 0.0;
     }
     if (input < 0) {
-        double slope = 1 / (1 - dz);
-        double b = 1 - slope;
-        double output = ((input * slope) + b );
-        return output * fabs(output);
+        double m = (1/(1-dz));
+        double out = (m*(input-1))+1;
+        return (out * out);
     } else {
-        speed = (input + dz) / (1 - dz);
-        return speed * fabs(speed);
+        double m = (1/(1-dz));
+        double out = (m*(fabs(input)-1))+1;
+        return -(out * out);
     }
 }

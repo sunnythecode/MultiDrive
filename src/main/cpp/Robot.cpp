@@ -45,22 +45,27 @@ void Robot::RobotInit() {
  * LiveWindow and SmartDashboard integrated updating.
  */
 void Robot::RobotPeriodic() {
-  frc::SmartDashboard::PutNumber("left y", controller->GetLeftY());
-  frc::SmartDashboard::PutNumber("right x", controller->GetRightX());
+  frc::SmartDashboard::PutNumber("Drive Mode: ", Drive_Mode);
+  if ((Drive_Mode % 3) == 0) {
+    frc::SmartDashboard::PutNumber("Raw Left y", controller->GetLeftY());
+    frc::SmartDashboard::PutNumber("Dz Left y", DzShift(controller->GetLeftY(), 0.2));
+    frc::SmartDashboard::PutNumber("Raw Right x", controller->GetRightX());
+    frc::SmartDashboard::PutNumber("Dz Right x", DzShift(controller->GetRightX(), 0.2));
+  } else if ((Drive_Mode % 3) == 1) {
+    frc::SmartDashboard::PutNumber("Raw Left y", controller->GetLeftY());
+    frc::SmartDashboard::PutNumber("Dz Left y", DzShift(controller->GetLeftY(), 0.2));
+    frc::SmartDashboard::PutNumber("Raw Right y", controller->GetRightY());
+    frc::SmartDashboard::PutNumber("Dz Right y", DzShift(controller->GetRightY(), 0.2));
+
+  } else if ((Drive_Mode % 3) == 2) {
+    frc::SmartDashboard::PutNumber("Right Trigger", controller->GetRightTriggerAxis());
+    frc::SmartDashboard::PutNumber("Left Trigger", controller->GetRightTriggerAxis());
+    frc::SmartDashboard::PutNumber("Dz Left x", DzShift(controller->GetLeftX(), 0.2));
+  }
+
   
 }
 
-/**
- * This autonomous (along with the chooser code above) shows how to select
- * between different autonomous modes using the dashboard. The sendable chooser
- * code works with the Java SmartDashboard. If you prefer the LabVIEW Dashboard,
- * remove all of the chooser code and uncomment the GetString line to get the
- * auto name from the text box below the Gyro.
- *
- * You can add additional auto modes by adding additional comparisons to the
- * if-else structure below with additional strings. If using the SendableChooser
- * make sure to add them to the chooser code above as well.
- */
 void Robot::AutonomousInit() {
   m_autoSelected = m_chooser.GetSelected();
   // m_autoSelected = SmartDashboard::GetString("Auto Selector",
@@ -85,26 +90,69 @@ void Robot::AutonomousPeriodic() {
 void Robot::TeleopInit() {}
 
 void Robot::TeleopPeriodic() {
-  int left_y = DzShift(controller->GetLeftY(), 0.2);
-  int right_x = DzShift(controller->GetRightX(), 0.2);
-  //int j_ly = jstick->GetRawAxis(1);
-  //int j_rx = jstick->GetRawAxis(4);
-  double left_Final;
-  double right_Final;
-  // Turning
-  if (right_x > 0.2 || right_x < -0.2) {
-    left_Final = right_x; // add gradual change from 0 -> 0.2
-    right_Final = -right_x;
-} else {
-    left_Final = left_y;
-    right_Final = left_y;
-}
+  double LL;
+  double RL;
+  double LF;
+  double RF;
+  if (controller->GetBButtonPressed()) {
+    Drive_Mode = Drive_Mode + 1;
+  }
+  if (Drive_Mode % 3 == 0) {
+    double left_y = DzShift(controller->GetLeftY(), 0.2);
+    double right_x = DzShift(controller->GetRightX(), 0.2);
+
+    // Turning
+    if (right_x > 0.2 || right_x < -0.2) {
+      LL = right_x; 
+      RL = -right_x;
+    } else {
+      LL = left_y;
+      RL = left_y;
+    }
+    RF = RL;
+    LF = LL;
+  } else if (Drive_Mode % 3 == 1) {
+    double left_y = DzShift(controller->GetLeftY(), 0.2);
+    double right_y = DzShift(controller->GetRightY(), 0.2);
+    LL = left_y;
+    RL = right_y;
+    LF = LL;
+    RF = RL;
+  } else if (Drive_Mode % 3 == 2) {
+    double brake = controller->GetLeftTriggerAxis();
+    if (brake > 0.1) {
+      LL = -brake;
+      RL = -brake;
+      LF = -brake;
+      RF = -brake;
+      return;
+    }
+    double speed = controller->GetRightTriggerAxis(); // speed for trigger
+    double left_x = DzShift(controller->GetLeftX(), 0.2);
+    if (left_x > 0) {
+      RL = speed - left_x;
+      LL = speed;
+      RF = speed - left_x;
+      LF = speed;
+    } else if (left_x < 0) {
+      RL = speed;
+      LL = speed - left_x;
+      RF = speed;
+      LF = speed - left_x;
+    } else if (left_x = 0) {
+      RL = speed;
+      LL = speed;
+      RF = speed;
+      LF = speed;
+    }
+    
+  }
 
 
-  m_leftLeadMotor->Set(left_Final);
-  m_rightLeadMotor->Set(right_Final);
-  frc::SmartDashboard::PutNumber("Left speed:  ", left_Final);
-  frc::SmartDashboard::PutNumber("Right speed:  ", right_Final);
+  m_leftLeadMotor->Set(LL);
+  m_rightLeadMotor->Set(RL);
+  m_leftFollowMotor->Set(LF);
+  m_rightFollowMotor->Set(RF);
 
 }
 
