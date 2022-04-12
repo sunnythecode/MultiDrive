@@ -18,11 +18,10 @@ void Robot::RobotInit() {
     m_rightFollowMotor->RestoreFactoryDefaults();
 
     // Set current limit for drive motors
-    m_leftLeadMotor->SetSmartCurrentLimit(driveMotorCurrentLimit);
-    m_rightLeadMotor->SetSmartCurrentLimit(driveMotorCurrentLimit);
-    m_leftFollowMotor->SetSmartCurrentLimit(driveMotorCurrentLimit);
-    m_rightLeadMotor->SetSmartCurrentLimit(driveMotorCurrentLimit);
-
+    //m_leftLeadMotor->SetSmartCurrentLimit(driveMotorCurrentLimit);
+    //m_rightLeadMotor->SetSmartCurrentLimit(driveMotorCurrentLimit);
+    //m_leftFollowMotor->SetSmartCurrentLimit(driveMotorCurrentLimit);
+    //m_rightLeadMotor->SetSmartCurrentLimit(driveMotorCurrentLimit)    follower->Follow(*motor, false);
     // Set drive motors to brake mode
     m_leftLeadMotor->SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
     m_rightLeadMotor->SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
@@ -31,7 +30,7 @@ void Robot::RobotInit() {
 
     // Set followers and inverts for drive motors
     m_leftLeadMotor->SetInverted(true);
-    m_leftFollowMotor->Follow(*m_leftLeadMotor, false);
+    m_leftFollowMotor->Follow(*m_leftLeadMotor, true);
     m_rightLeadMotor->SetInverted(false);
     m_rightFollowMotor->Follow(*m_rightLeadMotor, false);
 }
