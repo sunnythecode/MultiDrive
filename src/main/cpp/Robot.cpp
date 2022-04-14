@@ -34,6 +34,8 @@ void Robot::RobotInit() {
     m_leftFollowMotor->Follow(*m_leftLeadMotor, true);
     m_rightLeadMotor->SetInverted(false);
     m_rightFollowMotor->Follow(*m_rightLeadMotor, false);
+
+    
 }
 
 /**
@@ -48,6 +50,7 @@ void Robot::RobotPeriodic() {
   int driveMod = Drive_Mode % 4;
   frc::SmartDashboard::PutNumber("Drive Mode: ", driveMod);
   //0 Old Arcade, 1 Tank, 2 New Arcade
+  /*
   if ((Drive_Mode % 3) == 0) {
     frc::SmartDashboard::PutNumber("Raw Left y", controller->GetLeftY());
     frc::SmartDashboard::PutNumber("Dz Left y", DzShift(controller->GetLeftY(), 0.2));
@@ -64,6 +67,7 @@ void Robot::RobotPeriodic() {
     frc::SmartDashboard::PutNumber("Left Trigger", controller->GetRightTriggerAxis());
     frc::SmartDashboard::PutNumber("Dz Left x", DzShift(controller->GetLeftX(), 0.2));
   }
+  */
 
   
 }
