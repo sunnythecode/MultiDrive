@@ -18,20 +18,20 @@ void Robot::RobotInit() {
     m_rightFollowMotor->RestoreFactoryDefaults();
 
     // Set current limit for drive motors
-    m_leftLeadMotor->SetSmartCurrentLimit(driveMotorCurrentLimit);
-    m_rightLeadMotor->SetSmartCurrentLimit(driveMotorCurrentLimit);
-    m_leftFollowMotor->SetSmartCurrentLimit(driveMotorCurrentLimit);
-    m_rightLeadMotor->SetSmartCurrentLimit(driveMotorCurrentLimit);
+    //m_leftLeadMotor->SetSmartCurrentLimit(driveMotorCurrentLimit);
+    //m_rightLeadMotor->SetSmartCurrentLimit(driveMotorCurrentLimit);
+    //m_leftFollowMotor->SetSmartCurrentLimit(driveMotorCurrentLimit);
+    //m_rightLeadMotor->SetSmartCurrentLimit(driveMotorCurrentLimit);
 
     // Set drive motors to brake mode
-    m_leftLeadMotor->SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
-    m_rightLeadMotor->SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
-    m_leftFollowMotor->SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
-    m_rightFollowMotor->SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
+    //m_leftLeadMotor->SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
+    //m_rightLeadMotor->SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
+    //m_leftFollowMotor->SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
+    //m_rightFollowMotor->SetIdleMode(rev::CANSparkMax::IdleMode::kBrake);
 
     // Set followers and inverts for drive motors
     m_leftLeadMotor->SetInverted(true);
-    m_leftFollowMotor->Follow(*m_leftLeadMotor, false);
+    m_leftFollowMotor->Follow(*m_leftLeadMotor, true);
     m_rightLeadMotor->SetInverted(false);
     m_rightFollowMotor->Follow(*m_rightLeadMotor, false);
 }
@@ -45,7 +45,9 @@ void Robot::RobotInit() {
  * LiveWindow and SmartDashboard integrated updating.
  */
 void Robot::RobotPeriodic() {
-  frc::SmartDashboard::PutNumber("Drive Mode: ", Drive_Mode);
+  int driveMod = Drive_Mode % 4;
+  frc::SmartDashboard::PutNumber("Drive Mode: ", driveMod);
+  //0 Old Arcade, 1 Tank, 2 New Arcade
   if ((Drive_Mode % 3) == 0) {
     frc::SmartDashboard::PutNumber("Raw Left y", controller->GetLeftY());
     frc::SmartDashboard::PutNumber("Dz Left y", DzShift(controller->GetLeftY(), 0.2));
@@ -92,68 +94,69 @@ void Robot::TeleopInit() {}
 void Robot::TeleopPeriodic() {
   double LL;
   double RL;
-  double LF;
-  double RF;
-  if (controller->GetBButtonPressed()) {
+  if (controller->GetYButtonPressed()) {
     Drive_Mode = Drive_Mode + 1;
   }
-  if (Drive_Mode % 3 == 0) {
-    double left_y = DzShift(controller->GetLeftY(), 0.2);
-    double right_x = DzShift(controller->GetRightX(), 0.2);
+  if (Drive_Mode % 4 == 0) {
+    double left_y = DzShift(controller->GetLeftY(), 0.02);
+    double right_x = DzShift(controller->GetRightX(), 0.02);
 
     // Turning
-    if (right_x > 0.2 || right_x < -0.2) {
+    if (right_x > 0 || right_x < 0) {
       LL = right_x; 
       RL = -right_x;
     } else {
       LL = left_y;
       RL = left_y;
     }
-    RF = RL;
-    LF = LL;
-  } else if (Drive_Mode % 3 == 1) {
+  } else if (Drive_Mode % 4 == 1) {
     double left_y = DzShift(controller->GetLeftY(), 0.2);
     double right_y = DzShift(controller->GetRightY(), 0.2);
     LL = left_y;
     RL = right_y;
-    LF = LL;
-    RF = RL;
-  } else if (Drive_Mode % 3 == 2) {
-    double brake = controller->GetLeftTriggerAxis();
-    if (brake > 0.1) {
-      LL = -brake;
-      RL = -brake;
-      LF = -brake;
-      RF = -brake;
-      return;
+  } else if (Drive_Mode % 4 == 2) {
+    double Ltrigger = DzShift(controller->GetLeftTriggerAxis());
+    double Rtrigger = DzShift(controller->GetRightTriggerAxis());
+    double Rturn = DzShift(controller->GetLeftX());
+    if (Ltrigger > 0) { // Brake or Reverse
+      LL = -Ltrigger;
+      RL = -Ltrigger;
     }
-    double speed = controller->GetRightTriggerAxis(); // speed for trigger
-    double left_x = DzShift(controller->GetLeftX(), 0.2);
-    if (left_x > 0) {
-      RL = speed - left_x;
-      LL = speed;
-      RF = speed - left_x;
-      LF = speed;
-    } else if (left_x < 0) {
-      RL = speed;
-      LL = speed - left_x;
-      RF = speed;
-      LF = speed - left_x;
-    } else if (left_x = 0) {
-      RL = speed;
-      LL = speed;
-      RF = speed;
-      LF = speed;
-    }
+    else if (Rtrigger > 0) {
+      if (!(Rturn == 0)) { // Turning while going forward
+        if (Rturn > 0) { // Turning Right
+          LL = Rtrigger;
+          RL = Rtrigger - (Rturn * (1 - Rtrigger));
+        } else if (Rturn < 0) {
+          LL = Rtrigger - (fabs(Rturn) * (1-Rtrigger));
+          RL = Rtrigger;
+        }   
+    } else { // Moving Straight forward
+        LL = Rtrigger;
+        RL = Rtrigger;
+    } 
     
+    } else {
+        if (!(Rturn == 0)) { // Turning in place
+          LL = Rturn;
+          RL = -Rturn;
+        } else { // No input
+          LL = 0.0;
+          RL = 0.0;
+        }
   }
 
-
+} else if (Drive_Mode % 4 == 3) {
+  m_robotdrive->ArcadeDrive(DzShift(controller->GetLeftY()), DzShift(controller->GetRightX()));
+}
+  if (LL > 1) {
+    LL == 1;
+  }
+  if (RL > 1) {
+    RL = 1;
+  }
   m_leftLeadMotor->Set(LL);
   m_rightLeadMotor->Set(RL);
-  m_leftFollowMotor->Set(LF);
-  m_rightFollowMotor->Set(RF);
-
 }
 
 void Robot::DisabledInit() {}
