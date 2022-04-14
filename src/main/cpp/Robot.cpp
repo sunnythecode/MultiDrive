@@ -148,6 +148,7 @@ void Robot::TeleopPeriodic() {
 
 } else if (Drive_Mode % 4 == 3) {
   m_robotdrive->ArcadeDrive(DzShift(controller->GetLeftY()), DzShift(controller->GetRightX()));
+  return;
 }
   if (LL > 1) {
     LL == 1;
