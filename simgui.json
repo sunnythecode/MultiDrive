@@ -2,7 +2,13 @@
   "NTProvider": {
     "types": {
       "/FMSInfo": "FMSInfo",
+      "/LiveWindow/Ungrouped/DifferentialDrive[1]": "DifferentialDrive",
       "/SmartDashboard/Auto Modes": "String Chooser"
+    }
+  },
+  "NetworkTables": {
+    "SmartDashboard": {
+      "open": true
     }
   }
 }

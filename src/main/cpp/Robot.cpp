@@ -101,7 +101,7 @@ void Robot::TeleopPeriodic() {
   if (controller->GetYButtonPressed()) {
     Drive_Mode = Drive_Mode + 1;
   }
-  if (Drive_Mode % 4 == 0) {
+  if (Drive_Mode % 4 == 0) { // MyArcade
     double left_y = DzShift(controller->GetLeftY(), 0.02);
     double right_x = DzShift(controller->GetRightX(), 0.02);
 
@@ -113,12 +113,12 @@ void Robot::TeleopPeriodic() {
       LL = left_y;
       RL = left_y;
     }
-  } else if (Drive_Mode % 4 == 1) {
+  } else if (Drive_Mode % 4 == 1) { // My Tank
     double left_y = DzShift(controller->GetLeftY(), 0.2);
     double right_y = DzShift(controller->GetRightY(), 0.2);
     LL = left_y;
     RL = right_y;
-  } else if (Drive_Mode % 4 == 2) {
+  } else if (Drive_Mode % 4 == 2) { // My Arcade Trigger
     double Ltrigger = DzShift(controller->GetLeftTriggerAxis());
     double Rtrigger = DzShift(controller->GetRightTriggerAxis());
     double Rturn = DzShift(controller->GetLeftX());
@@ -150,7 +150,7 @@ void Robot::TeleopPeriodic() {
         }
   }
 
-} else if (Drive_Mode % 4 == 3) {
+} else if (Drive_Mode % 4 == 3) { // FRC Arcade
   m_robotdrive->ArcadeDrive(DzShift(controller->GetLeftY()), DzShift(controller->GetRightX()));
   return;
 }
