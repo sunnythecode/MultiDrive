@@ -49,6 +49,8 @@ void Robot::RobotInit() {
 void Robot::RobotPeriodic() {
   int driveMod = Drive_Mode % 4;
   frc::SmartDashboard::PutNumber("Drive Mode: ", driveMod);
+  frc::SmartDashboard::PutNumber("lEncoder", lEncoder.GetPosition());
+  frc::SmartDashboard::PutNumber("rEncoder", rEncoder.GetPosition()); 
   //0 Old Arcade, 1 Tank, 2 New Arcade
   /*
   if ((Drive_Mode % 3) == 0) {

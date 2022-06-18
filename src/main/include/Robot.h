@@ -63,7 +63,8 @@ Davis Branch:
   rev::CANSparkMax* m_leftFollowMotor = new rev::CANSparkMax(leftFollowDeviceID, rev::CANSparkMax::MotorType::kBrushless);
   rev::CANSparkMax* m_rightFollowMotor = new rev::CANSparkMax(rightFollowDeviceID, rev::CANSparkMax::MotorType::kBrushless);
   frc::DifferentialDrive* m_robotdrive = new frc::DifferentialDrive(*m_leftLeadMotor, *m_rightLeadMotor);
-  
+  rev::SparkMaxRelativeEncoder lEncoder = m_leftLeadMotor->GetEncoder();
+  rev::SparkMaxRelativeEncoder rEncoder = m_rightLeadMotor->GetEncoder();
   int Drive_Mode = 0; // 0 Arcade, 1 Tank, 2 Forza, FRC Arcade
   //Functions
   double DzShift(double input, double dz);
